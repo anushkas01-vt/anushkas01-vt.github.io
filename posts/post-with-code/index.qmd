@@ -8,3 +8,7 @@ image: "image.jpg"
 
 This is a post with executable code.
 Testing Git Commit and push settings!
+
+```python
+print("Trying to see how it gets rendered as code")
+```
