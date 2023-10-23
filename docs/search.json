@@ -25,6 +25,6 @@
     "href": "posts/post-with-code/index.html",
     "title": "Post With Code",
     "section": "",
-    "text": "This is a post with executable code. Testing Git Commit and push settings!\nprint(\"Trying to see how it gets rendered as code\")\nSeeing how images get rendered \nAdding latex equations to see how these get rendered \\[\ny = x\n\\]\nAdding links"
+    "text": "This is a post with executable code. Testing Git Commit and push settings!\nprint(\"Trying to see how it gets rendered as code\")\nSeeing how images get rendered \nAdding latex equations to see how these get rendered \\[\ny = x\n\\]\nAdding links Link"
   }
 ]
