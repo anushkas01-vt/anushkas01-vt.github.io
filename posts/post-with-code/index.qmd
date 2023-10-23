@@ -12,3 +12,14 @@ Testing Git Commit and push settings!
 ```python
 print("Trying to see how it gets rendered as code")
 ```
+
+Seeing how images get rendered
+![](image.jpg)
+
+Adding latex equations to see how these get rendered
+$$
+y = x
+$$
+
+Adding links
+![https://www.google.com](Link!)
