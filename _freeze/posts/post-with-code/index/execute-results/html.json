@@ -1,0 +1,11 @@
+{
+  "hash": "17d4628746daf484926b4c28d8d74b50",
+  "result": {
+    "markdown": "---\ntitle: \"Post With Code\"\nauthor: \"Harlow Malloc\"\ndate: \"2023-10-06\"\ncategories: [news, code, analysis]\nimage: \"image.jpg\"\n---\n\nThis is a post with executable code.\nTesting Git Commit and push settings!\n\n```python\nprint(\"Trying to see how it gets rendered as code\")\n```\n\n::: {.cell execution_count=1}\n``` {.python .cell-code}\nprint(\"Runnable cell\")\n```\n\n::: {.cell-output .cell-output-stdout}\n```\nRunnable cell\n```\n:::\n:::\n\n\nSeeing how images get rendered\n![Caption](image.jpg){width=80%}\n# https://quarto.org/docs/authoring/figures.html  figure layout documentation\n\nAdding latex equations to see how these get rendered\n$$\ny = x\n$$\n\nAdding links\n[Link](https://www.google.com)\n\n# Can add bib file to quarto for referencing https://quarto.org/docs/authoring/footnotes-and-citations.html\n\n",
+    "supporting": [
+      "index_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

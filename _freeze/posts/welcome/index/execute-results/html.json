@@ -1,0 +1,11 @@
+{
+  "hash": "d6c352735e133eb979682f184551e454",
+  "result": {
+    "markdown": "---\ntitle: \"Welcome To My Blog\"\nauthor: \"Tristan O'Malley\"\ndate: \"2023-10-03\"\ncategories: [news]\n---\n\nThis is the first post in a Quarto blog. Welcome!\n\n![](thumbnail.jpg)\n\nSince this post doesn't specify an explicit `image`, the first image in the post will be used in the listing page of posts.\n\n::: {.cell execution_count=1}\n``` {.python .cell-code}\nimport pandas as pd\nimport cv2\nimport numpy as np\n\nRGB_values = pd.DataFrame(columns=['R', 'G', 'B'])\nimage = cv2.imread(\"beach.jpg\")\n\n# get image shape\nnumPixels = image.shape\nprint(numPixels)\n\ny, x = numPixels[0], numPixels[1]\nfor i, j in zip(range(y), range(x)):\n    BGR_values = image[i, j]\n    RGB_values.loc[len(RGB_values)] = np.flip(BGR_values)\n\nprint(RGB_values)\n```\n\n::: {.cell-output .cell-output-stdout}\n```\n(1200, 1920, 3)\n        R    G    B\n0     161  195  240\n1     161  195  240\n2     160  194  239\n3     159  193  238\n4     159  193  238\n...   ...  ...  ...\n1195   53   42   58\n1196   49   38   55\n1197   47   36   53\n1198   49   37   57\n1199   49   37   57\n\n[1200 rows x 3 columns]\n```\n:::\n:::\n\n\n",
+    "supporting": [
+      "index_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}
