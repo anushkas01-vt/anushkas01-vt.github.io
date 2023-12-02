@@ -10,3 +10,23 @@ This is the first post in a Quarto blog. Welcome!
 ![](thumbnail.jpg)
 
 Since this post doesn't specify an explicit `image`, the first image in the post will be used in the listing page of posts.
+
+```{python}
+import pandas as pd
+import cv2
+import numpy as np
+
+RGB_values = pd.DataFrame(columns=['R', 'G', 'B'])
+image = cv2.imread("beach.jpg")
+
+# get image shape
+numPixels = image.shape
+print(numPixels)
+
+y, x = numPixels[0], numPixels[1]
+for i, j in zip(range(y), range(x)):
+    BGR_values = image[i, j]
+    RGB_values.loc[len(RGB_values)] = np.flip(BGR_values)
+
+print(RGB_values)
+```

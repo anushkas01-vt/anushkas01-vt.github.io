@@ -12,9 +12,14 @@ Testing Git Commit and push settings!
 ```python
 print("Trying to see how it gets rendered as code")
 ```
+```{python}
+print("Runnable cell")
+```
+
 
 Seeing how images get rendered
 ![Caption](image.jpg){width=80%}
+# https://quarto.org/docs/authoring/figures.html  figure layout documentation
 
 Adding latex equations to see how these get rendered
 $$
@@ -23,3 +28,5 @@ $$
 
 Adding links
 [Link](https://www.google.com)
+
+# Can add bib file to quarto for referencing https://quarto.org/docs/authoring/footnotes-and-citations.html
