@@ -6,3 +6,22 @@ freeze: false
 
 # Enable banner style title blocks
 title-block-banner: true
+
+format:
+  html:
+    highlight-style: a11y
+    anchor-sections: true
+    tbl-cap-location: margin
+    code-block-background: false
+    code-block-border-left: false
+    citations-hover: true
+    footnote-hover: true
+    code-copy: true
+    code-fold: true
+    code-link: true
+    code-tools: true
+    link-external-icon: true
+    link-external-newwindow: true
+    crossref:
+      lst-title: List
+      lst-prefix: List
