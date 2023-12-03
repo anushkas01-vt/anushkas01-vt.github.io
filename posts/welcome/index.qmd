@@ -171,3 +171,5 @@ fig, ax = plt.subplots()
 ax.pie(sizes,
        colors=colors, autopct='%1.1f%%', pctdistance=1.15);
 ```
+
+Done!
