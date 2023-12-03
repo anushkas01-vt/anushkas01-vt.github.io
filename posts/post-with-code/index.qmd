@@ -16,6 +16,9 @@ print("Trying to see how it gets rendered as code")
 print("Runnable cell")
 ```
 
+```{python}
+print("Runnable Cell 2, does it get updated?")
+```
 
 Seeing how images get rendered
 ![Caption](image.jpg){width=80%}
