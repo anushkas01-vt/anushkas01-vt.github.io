@@ -20,6 +20,7 @@ format:
     code-fold: true
     code-link: true
     code-tools: true
+    code-overflow: wrap
     link-external-icon: true
     link-external-newwindow: true
     crossref:

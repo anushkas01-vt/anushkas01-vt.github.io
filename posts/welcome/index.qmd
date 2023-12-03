@@ -3,6 +3,7 @@ title: "Welcome To My Blog"
 author: "Tristan O'Malley"
 date: "2023-10-03"
 categories: [news]
+
 ---
 
 Clustering with K-Means
@@ -71,7 +72,7 @@ ax.set_title('RGB value of input image');
 ```
 
 ```{python}
-#| echo: true
+#| code-fold: false
 import sklearn.cluster
 from yellowbrick.cluster import KElbowVisualizer
 model = KElbowVisualizer(sklearn.cluster.KMeans(), k=10)
@@ -81,7 +82,7 @@ elbow_value = model.elbow_value_
 ```
 
 ```{python}
-#| echo: true
+#| code-fold: false
 
 import math
 import random
