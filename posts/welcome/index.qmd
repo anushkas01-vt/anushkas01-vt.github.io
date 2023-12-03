@@ -5,7 +5,7 @@ date: "2023-10-03"
 categories: [news]
 ---
 
-\Huge Clustering with K-Means
+Clustering with K-Means
 
 Identifying the most dominant colours in an image using K-Means Clustering.
 
