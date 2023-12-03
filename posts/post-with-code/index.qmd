@@ -4,13 +4,16 @@ author: "Harlow Malloc"
 date: "2023-10-06"
 categories: [news, code, analysis]
 image: "image.jpg"
+execute:
+  echo: false
+jupyter: python3
 ---
 
 This is a post with executable code.
 Testing Git Commit and push settings!
 
 ```python
-print("Trying to see how it gets rendered as code")
+print("Trying to see how it gets rendered as code. Typing a reallly long sentence to see if it wraps or nott")
 ```
 ```{python}
 print("Runnable cell")

@@ -60,6 +60,6 @@
     "href": "posts/post-with-code/index.html",
     "title": "Post With Code",
     "section": "",
-    "text": "This is a post with executable code. Testing Git Commit and push settings!\nprint(\"Trying to see how it gets rendered as code\")\n\nprint(\"Runnable cell\")\n\nRunnable cell\n\n\n\nprint(\"Runnable Cell 2, does it get updated?\")\n\nRunnable Cell 2, does it get updated?\n\n\nSeeing how images get rendered  # https://quarto.org/docs/authoring/figures.html figure layout documentation\nAdding latex equations to see how these get rendered \\[\ny = x\n\\]\nAdding links Link\n\nCan add bib file to quarto for referencing https://quarto.org/docs/authoring/footnotes-and-citations.html"
+    "text": "This is a post with executable code. Testing Git Commit and push settings!\nprint(\"Trying to see how it gets rendered as code. Typing a reallly long sentence to see if it wraps or nott\")\n\n\nRunnable cell\n\n\n\n\nRunnable Cell 2, does it get updated?\n\n\nSeeing how images get rendered  # https://quarto.org/docs/authoring/figures.html figure layout documentation\nAdding latex equations to see how these get rendered \\[\ny = x\n\\]\nAdding links Link\n\nCan add bib file to quarto for referencing https://quarto.org/docs/authoring/footnotes-and-citations.html"
   }
 ]
