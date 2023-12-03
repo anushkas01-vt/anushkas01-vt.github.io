@@ -5,11 +5,10 @@ date: "2023-10-03"
 categories: [news]
 ---
 
-This is the first post in a Quarto blog. Welcome!
+\Huge Clustering with K-Means
 
-![](thumbnail.jpg)
+Identifying the most dominant colours in an image using K-Means Clustering.
 
-Since this post doesn't specify an explicit `image`, the first image in the post will be used in the listing page of posts.
 
 ```{python}
 
