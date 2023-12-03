@@ -1,13 +1,11 @@
 ---
-title: "Welcome To My Blog"
-author: "Tristan O'Malley"
+title: "Clustering with K-Means"
+author: "Anushka S"
 date: "2023-10-03"
-categories: [news]
+categories: [Machine Learning, Clustering]
 ---
 
-\Huge Clustering with K-Means
-
-Identifying the most dominant colours in an image using K-Means Clustering.
+In this blog, we explore the application of identifying the most dominant colours in an image using K-Means Clustering.
 
 
 ```{python}
