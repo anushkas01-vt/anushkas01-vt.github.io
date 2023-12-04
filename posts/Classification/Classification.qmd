@@ -118,14 +118,14 @@ best_preds.append([accuracy_score(y_test, y_pred_best), precision_score(y_test, 
 #| echo: false
 print()
 print("SVM classifier")
-print(f"Accuracy: {accuracy_score(y_test, y_pred)}")
-print(f"F1 score: {f1_score(y_test, y_pred)}")
+print(f"Accuracy: {accuracy_score(y_test, y_pred_best)}")
+print(f"F1 score: {f1_score(y_test, y_pred_best)}")
  
 ```
 
 ```{python}
 #| echo: false
-cm = confusion_matrix(y_test, y_pred_best, labels=best_model_svm.classes_)
+cm = confusion_matrix(y_test, y_pred_best, labels=svm_model.classes_)
 disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Non-Diabetic', 'Diabetic'])
 disp.plot()
 plt.show()

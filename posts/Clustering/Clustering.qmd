@@ -2,15 +2,29 @@
 title: "Clustering with K-Means"
 author: "Anushka S"
 date: "2023-12-03"
-categories: [Clustering, Machine Learning, K-Means]
-image: []{https://cdn.hackr.io/uploads/posts/large/1600253014vJgLQIJ7nI.png}
+categories: [Clustering, Unsupervised Learning, Machine Learning, K-Means]
 ---
 
-Clustering with K-Means
-
-Identifying the most dominant colours in an image using K-Means Clustering.
+In this blog, we explore the application of identifying the most dominant colours in an image using K-Means Clustering. 
 
 
+[Unsupervised Learning](https://cloud.google.com/discover/what-is-unsupervised-learning#:~:text=Unsupervised%20learning%20in%20artificial%20intelligence,any%20explicit%20guidance%20or%20instruction.) in artificial intelligence is a type of machine learning that learns from data without human supervision. Unlike supervised learning, unsupervised machine learning models are given unlabeled data and allowed to discover patterns and insights without any explicit guidance or instruction. 
+
+Clustering is an unsupervised machine learning technique. Clustering is the process of building groups of data points in a way that the data in the same group are more similar to one another than to those in other groups.
+
+Clustering algorithms include agglomerative clustering, Gaussian mixtures for clustering, K-Means clustering, hierarchial clustering, DBSCAN, and much more. For the application of extracting dominant colours from an image we make use of the K-Means algorithm (distance-based) over some of the other popular density based clustering algorithms like DBSCAN (popularly used for anomaly detection) Since the similarity between the colours can be simply represented by the location in the 3D space. Many distance-based clustering algorithms, including K-means, are computationally efficient and can handle large datasets, making them suitable for processing images with a large number of pixels. The efficiency of these algorithms allows for faster clustering and analysis of image data. 
+
+The K-means algorithms is one of the most popular clustering algorithms. It can cluster groups of data given the number of clusters to form. It begins by selecting n cluster centroids (randomly or using the kmeans++ initialization algorithm) and assigning the data points to each cluster based on its Euclidean Distance from the cluster centroid. A point is considered to be in a particular cluster if it is closer to that cluster's centroid than any other centroid. 
+K-Means finds the best centroids by alternating between (1) assigning data points to clusters based on the current centroids (2) chosing centroids (points which are the center of a cluster) based on the current assignment of data points to clusters. It continues this process for a number of iterations while trying to minimize the root mean square error each iteration (till the centroids dont change) and improve clustering. 
+
+A great example of this can be seen in the figure below taken from this [KMeans article](https://stanford.edu/~cpiech/cs221/handouts/kmeans.html).
+
+![K-Means Algorithm Visualization Sample](K-Means-example.JPG){width=80%}
+
+Coming to extracting the most dominant colours in an image, let's take the example of the following image.
+![Sample Beach Image](Beach.jpg){width=80%}
+
+We begin by analyzing the image by extracting the RGB (Red, Green, Blue) values that together make up the colour of the pixel. By making use of the [cv2](https://opencv.org/) library from OpenCV, we can essentially "read" the image, i.e. get it's pixel value, and store the data in a [Pandas](https://pandas.pydata.org/docs/index.html#) dataframe for future use. An example of the RGB values for the sample image can be seen below.
 ```{python}
 
 import warnings
@@ -30,12 +44,12 @@ print(numPixels)
 y, x = numPixels[0], numPixels[1]
 for i, j in zip(range(y), range(x)):
     BGR_values = image[i, j]
-    RGB_values.loc[len(RGB_values)] = np.flip(BGR_values)
+    RGB_values.loc[len(RGB_values)] = np.flip(BGR_values) # to get the (B, G, R) values in (R, G, B) format
 
 RGB_values.head(10)
 ```
 
-
+A lot of processing libraries, and machine learning algorithms require the data to be scaled or normalized. The colorsys library requires the RGB values to be normalized before being able to convert it into HSL values to generate the plot displaying the colours in the image in a list form! Additionally, since the K-Means clustering algorithm is a distance based algorithm, it is beneficial to rescale each feature dimension of the observation set by its standard deviation so that higher range of some features do not influence the algorithm by acting 'weighted'. Each feature is normalized across all observations to give it unit variance.
 ```{python}
 # plot the RGB values on a graph
 from mpl_toolkits import mplot3d
@@ -56,6 +70,7 @@ cmap_RGB = matplotlib.colors.ListedColormap(RGB_unique, "Colours in the image")
 cmap_RGB
 ```
 
+We can see below the (R, G, B) values plotted in a 3D space. This visualization is especially important to better analyze the K-Means clustering algorithm.
 ```{python}
 fig = plt.figure(figsize = (8,8))
 ax = fig.add_subplot(111, projection='3d')
@@ -71,6 +86,11 @@ ax.set_zlabel('B')
 ax.set_title('RGB value of input image');
 ```
 
+Since K-Means clustering requires a defined number of clusters, for accurate clustering, it is important to have an optimum number of clusters, not too less, not too many. We make use of the KElbowVisualizer to find the optimal value for the number of clusters. From the documentation: "The KElbowVisualizer implements the “elbow” method to help data scientists select the optimal number of clusters by fitting the model with a range of values for 
+. If the line chart resembles an arm, then the “elbow” (the point of inflection on the curve) is a good indication that the underlying model fits best at that point. In the visualizer “elbow” will be annotated with a dashed line. The elbow method runs k-means clustering on the dataset for a range of values for k (say from 1-10) and then for each value of k computes an average score for all clusters."  [Read More!](https://www.scikit-yb.org/en/latest/api/cluster/elbow.html)
+
+We can see from the graph that for our data, 4 is the optimum number of clusters. So our final result would be the 4 most dominant colours in the image.
+
 ```{python}
 #| code-fold: false
 import sklearn.cluster
@@ -81,8 +101,21 @@ model.show();
 elbow_value = model.elbow_value_
 ```
 
+Below is the algorithm for K-Means clustering with k-means++ initialization from scratch. The K-Means clustering algorithm can also be implemented by using the [scikit learn library](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html).
+
+We begin by initializing values such as the dataset in the [numpy](https://numpy.org/doc/stable/index.html) format, setting the number of clusters, setting the maximum number of iterations, as well as choosing the first centroid at random.
+
+Then, we run the k-means++ algorithm to select the initial centroids. The k-means++ algorithm selects initial cluster centroids using sampling based on an empirical probability distribution of the points' contribution to the overall inertia. This technique speeds up convergence.
+
+* Take one centroid $c_1$, chosen uniformly at random from the dataset.
+* Take a new center $c_i$, choosing an instance $\mathbf{x}_i$ with probability: $D(\mathbf{x}_i)^2$ / $\sum\limits_{j=1}^{m}{D(\mathbf{x}_j)}^2$ where $D(\mathbf{x}_i)$ is the distance between the instance $\mathbf{x}_i$ and the closest centroid that was already chosen. This probability distribution ensures that instances that are further away from already chosen centroids are much more likely be selected as centroids.
+* Repeat the previous step until all $k$ centroids have been chosen.
+
+After the centroids have been chosen, the K-means algorithm begins running continuously mapping each datapoint to each cluster and improving chosen centroid values until the maximum number of iterations or until there is no change in the centroids chosen.
+
 ```{python}
 #| code-fold: false
+#| code-line-numbers: true
 
 import math
 import random
@@ -92,6 +125,12 @@ centroid1 = x[random.randint(0,len(x))]
 centroids = []
 centroids.append([centroid1])
 numClusters = elbow_value
+iteration = 0
+max_iter = 100 # can be passed in as a parameter
+
+'''
+k-means++ 
+'''
 
 # pick cluster centroid with probability proportional to the centroid1
 distance = [math.dist(centroid1, x[i])**2 for i in range(len(x))]
@@ -106,27 +145,32 @@ for i in range(1, numClusters):
     centroids.append(new_centroid)
     # update distances between newly chosen centroid and other points now
     distance = [math.dist(new_centroid[0], x[i])**2 for i in range(len(x))]
-
-
+'''
+K-means algorithm
+'''
 centroids = np.array(centroids)
-sorted_points = [[] for _ in range(4)]
-for point in x:
-    dists = [math.dist(point, np.squeeze(i)) for i in centroids]
-    centroid_idx = np.argmin(dists)
-    sorted_points[centroid_idx].append(point)
-    
-# new centroid is mean of the points in each cluster
-prev_centroids = centroids[:]
+prev_centroids = np.zeros(centroids.shape)
+while np.not_equal(centroids, prev_centroids).any() and iteration < max_iter:
+            # Sort each datapoint, assigning to nearest centroid
+            # sorted points is of size num_clusters, num_points in each cluster
+            sorted_points = [[] for _ in range(numClusters)]
+            for point in x:
+                dists = [math.dist(point, np.squeeze(i)) for i in centroids]
+                centroid_idx = np.argmin(dists)
+                sorted_points[centroid_idx].append(point)
+            # Push current centroids to previous, reassign centroids as mean of the points belonging to them
+            # new centroid is mean of the points in each cluster
+            prev_centroids = centroids[:]
+            centroids = [np.mean(cluster, axis=0) for cluster in sorted_points]
+            # make sure that none of the centroid values are nan
+            for points in range(len(centroids)):
+                if np.isnan(centroids[points]).any():
+                    centroids[points] = prev_centroids[points]
+            iteration += 1
 
-# sorted points is of size num_clusters, num_points in each cluster
-centroids = [np.mean(cluster, axis=0) for cluster in sorted_points]
-
-# make sure that none of the centroid values are nan
-for points in range(len(centroids)):
-    if np.isnan(centroids[points]).any():
-        centroids[points] = prev_centroids[points]
 ```
 
+Plotting the clusters formed after K-Means clustering algorithm as shown below.
 ```{python}
 colors = []
 
@@ -158,6 +202,7 @@ plt.show()
 
 ```
 
+We can visualize the following to be the most dominant colours in the given image!
 ```{python}
 plt.grid(False)
 plt.imshow([colors])
@@ -173,4 +218,4 @@ ax.pie(sizes,
        colors=colors, autopct='%1.1f%%', pctdistance=1.15);
 ```
 
-Done!
+And we're done!

@@ -2,9 +2,21 @@
 title: "Anomaly Detection with DBSCAN"
 author: "Anushka S"
 date: "2023-12-03"
-categories: [Clustering, Machine Learning, DBSCAN, Anomaly Detection]
-image: []{https://cdn.hackr.io/uploads/posts/large/1600253014vJgLQIJ7nI.png}
+categories: [Clustering, Unsupervised Learning, Machine Learning, DBSCAN, Anomaly Detection]
 ---
+
+[Unsupervised Learning](https://cloud.google.com/discover/what-is-unsupervised-learning#:~:text=Unsupervised%20learning%20in%20artificial%20intelligence,any%20explicit%20guidance%20or%20instruction.) in artificial intelligence is a type of machine learning that learns from data without human supervision. Unlike supervised learning, unsupervised machine learning models are given unlabeled data and allowed to discover patterns and insights without any explicit guidance or instruction. 
+
+Clustering is an unsupervised machine learning technique. Clustering is the process of building groups of data points in a way that the data in the same group are more similar to one another than to those in other groups. Clustering algorithms include agglomerative clustering, Gaussian mixtures for clustering, K-Means clustering, hierarchial clustering, DBSCAN, and much more. 
+
+Anomaly Detection is a use case of the clustering algorithm to identify noise, exceptions, or outliers in the data which deviate significantly from standard behaviors or patterns. Density based clustering algorithms are especially useful in anomaly detection. DBSCAN (Density-Based Spatial Clustering of Applications with Noise) is one such algorithm which is popularly used in anomaly detection.
+
+Unlike methods that rely on distance thresholds (like in some distance-based clustering), DBSCAN automatically detects outliers without requiring a predefined distance threshold. It adapts to the local density of the data, making it robust to variations in the density of clusters. DBSCAN can scale to large datasets well and can handle clusters of arbitrary shapes, making it suitable for datasets where outliers might be located in regions with irregular shapes or non-uniform density.
+
+In this blog, we analyze the ionosphere dataset from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/52/ionosphere) to identify the "Bad" radars from the dataset.
+
+"This radar data was collected by a system in Goose Bay, Labrador.  This system consists of a phased array of 16 high-frequency antennas with a total transmitted power on the order of 6.4 kilowatts.  See the paper for more details.  The targets were free electrons in the ionosphere. "Good" radar returns are those showing evidence of some type of structure in the ionosphere.  "Bad" returns are those that do not; their signals pass through the ionosphere."
+As can be seen from the tabe, the data has already been normalized.
 
 ```{python}
 from ucimlrepo import fetch_ucirepo 
@@ -30,6 +42,9 @@ print(ionosphere.variables)
 X.head(5) # already normalized between [-1,1] as seen
 ```
 
+Since the DBSCAN algorithm maps density based on a distance metric, the greater the number of dimensions, the harder it becomes for the algorithm to map the data points accurately. By applying Principal Component Analysis (PCA), we can reduce the number of dimensions. PCA transforms high-dimensional data into a lower-dimensional representation by identifying and emphasizing the principal components using statistical methods. By retaining only the most informative components, PCA simplifies data while preserving essential patterns.
+
+By plotting a scree plot, we map the variance explained which helps determine the dimensions the final dataset can be reduced to without losing too much information. The "elbow" of the plot is usually considered the optimum value.
 ```{python}
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
@@ -49,6 +64,15 @@ plt.xlabel('Principal Component')
 plt.ylabel('Variance Explained')
 plt.show()
 ```
+
+We can see from the above plot that we can reduce the 34 column dimension data by projecting it into a 3D space.
+
+
+The DBSCAN algorithm is mainly based on a metric function (normally the Euclidean distance) and a radius, $${epsilon}$$. Given a sample point, its boundary is checked for other samples. If it is surrounded by at least $$m$$ minimum points, it becomes a core point. If the number of points are less than $$m$$, the point is classified as a boundary point, and if there are no other data points around within $${epsilon}$$ radius, it is considered a noise point.
+
+![DBSCAN working](https://miro.medium.com/max/627/1*yT96veo7Zb5QeswV7Vr7YQ.png){width=80%}
+
+It is important to understand the optimum epsilon $${epsilon}$$ value for the best model performance to ensure that it does not classify data points with slight deviations from the normal to be considered noise (very low $${epsilon}$$) and so that it does not include data points that are noise to be normal (very large $${epsilon}$$).
 
 ```{python}
 from sklearn.neighbors import NearestNeighbors
@@ -74,6 +98,10 @@ plt.legend()
 plt.show()
 ```
 
+We can identify the optimum epsilon value from the 'knee point' of this graph. You can read more about this [here!](https://iopscience.iop.org/article/10.1088/1755-1315/31/1/012012/pdf)
+
+In the below code, we structure the data into 3D using PCA and initialize and fit the DBSCAN model on the transformed data with the optimum chosen epsilon value. The DBSCAN implementation is imported from the [scikit-learn library](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html).
+
 ```{python}
 from sklearn.cluster import DBSCAN
 import collections
@@ -81,6 +109,7 @@ import collections
 principalComponents = PCA(n_components=3).fit_transform(X)
 
 principalDf = pd.DataFrame(data = principalComponents)
+# initialize DBSCAN and fit data
 cluster = DBSCAN(eps=epsilon).fit(principalDf)
 
 principalDf.columns=['PCA1','PCA2','PCA3']
@@ -89,35 +118,9 @@ principalDf
 print(collections.Counter(cluster.labels_))
 ```
 
-```{python}
-import seaborn as sns
-import numpy as np
+After fitting the data, the data points have been assigned clusters as can be seen in the above output. The datapoints assigned to cluster '-1' are considered to be the outlier points.
 
-
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.colors import ListedColormap
-
-
-# axes instance
-fig = plt.figure(figsize=(6,6))
-ax = Axes3D(fig, auto_add_to_figure=False)
-fig.add_axes(ax)
-
-# get colormap from seaborn
-cmap = plt.cm.get_cmap('viridis', 2) 
-x = principalDf['PCA1']
-y = principalDf['PCA2']
-z = principalDf['PCA3']
-
-# plot
-ax.scatter(x, y, z, s=40, c=np.array(cluster.labels_)>-1, marker='o', cmap=cmap, alpha=1)
-
-ax.set_xlabel('X Label')
-ax.set_ylabel('Y Label')
-ax.set_zlabel('Z Label')
-
-plt.show()
-```
+As can be seen from the 3D plot below, the outliers are low-density points.
 
 ```{python}
 import seaborn as sns
@@ -148,8 +151,12 @@ ax.set_zlabel('Z Label')
 
 plt.show()
 ```
+
+We can also use the [sns pairplot](https://seaborn.pydata.org/generated/seaborn.pairplot.html) to visualize the distribution plots capturing relationship between the datapoints in each dimension . We can also visualize the representation of the outliers vs normal datapoints.
 
 ```{python}
 principalDf['labels'] = cluster.labels_ > -1
 sns.pairplot(data=principalDf, hue='labels')
 ```
+
+As we can see, DBSCAN has proven to be effective in separating outliers from the data and is effective in applications of cleaning datasets, fraud detection, outlier detection, etc.
