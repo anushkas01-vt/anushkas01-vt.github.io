@@ -1,0 +1,155 @@
+---
+title: "Anomaly Detection with DBSCAN"
+author: "Anushka S"
+date: "2023-12-03"
+categories: [Clustering, Machine Learning, DBSCAN, Anomaly Detection]
+image: []{https://cdn.hackr.io/uploads/posts/large/1600253014vJgLQIJ7nI.png}
+---
+
+```{python}
+from ucimlrepo import fetch_ucirepo 
+import pandas as pd
+  
+# fetch dataset 
+ionosphere = fetch_ucirepo(id=52) 
+
+
+# data (as pandas dataframes) 
+X = ionosphere.data.features 
+y = ionosphere.data.targets 
+
+# metadata 
+print(ionosphere.metadata) 
+  
+# variable information 
+print(ionosphere.variables) 
+
+```
+```{python}
+#| echo: false
+X.head(5) # already normalized between [-1,1] as seen
+```
+
+```{python}
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+import numpy as np
+
+#define PCA model to use
+pca = PCA(n_components=len(X.columns))
+
+#fit PCA model to data
+pca_fit = pca.fit(X)
+
+# scree plot
+PC_values = np.arange(pca.n_components_) + 1
+plt.plot(PC_values, pca.explained_variance_ratio_, 'o-', linewidth=2, color='blue')
+plt.title('Scree Plot')
+plt.xlabel('Principal Component')
+plt.ylabel('Variance Explained')
+plt.show()
+```
+
+```{python}
+from sklearn.neighbors import NearestNeighbors
+nbrs = NearestNeighbors(n_neighbors=2, metric='cosine').fit(X)
+distances, indices = nbrs.kneighbors(X)
+distances = np.sort(distances, axis=0)
+distances = distances[:,1]
+
+# Plot the k-distance graph
+plt.plot(distances)
+plt.title('k-distance plot')
+plt.xlabel('Data Point Index')
+plt.ylabel('Distance to k-th nearest neighbor')
+
+
+# Find the optimal epsilon (knee point)
+knee_point_index = np.argmax(np.diff(distances))  # Find the index with the maximum difference in distances
+epsilon = distances[knee_point_index]
+plt.axvline(x=knee_point_index, color='r', linestyle='--', label=f'Optimal Epsilon = {epsilon:.2f}')
+plt.legend()
+
+# Show the plot
+plt.show()
+```
+
+```{python}
+from sklearn.cluster import DBSCAN
+import collections
+
+principalComponents = PCA(n_components=3).fit_transform(X)
+
+principalDf = pd.DataFrame(data = principalComponents)
+cluster = DBSCAN(eps=epsilon).fit(principalDf)
+
+principalDf.columns=['PCA1','PCA2','PCA3']
+principalDf
+
+print(collections.Counter(cluster.labels_))
+```
+
+```{python}
+import seaborn as sns
+import numpy as np
+
+
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.colors import ListedColormap
+
+
+# axes instance
+fig = plt.figure(figsize=(6,6))
+ax = Axes3D(fig, auto_add_to_figure=False)
+fig.add_axes(ax)
+
+# get colormap from seaborn
+cmap = plt.cm.get_cmap('viridis', 2) 
+x = principalDf['PCA1']
+y = principalDf['PCA2']
+z = principalDf['PCA3']
+
+# plot
+ax.scatter(x, y, z, s=40, c=np.array(cluster.labels_)>-1, marker='o', cmap=cmap, alpha=1)
+
+ax.set_xlabel('X Label')
+ax.set_ylabel('Y Label')
+ax.set_zlabel('Z Label')
+
+plt.show()
+```
+
+```{python}
+import seaborn as sns
+import numpy as np
+
+
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.colors import ListedColormap
+
+
+# axes instance
+fig = plt.figure(figsize=(6,6))
+ax = Axes3D(fig, auto_add_to_figure=False)
+fig.add_axes(ax)
+
+# get colormap from seaborn
+cmap = plt.cm.get_cmap('viridis', 2) 
+x = principalDf['PCA1']
+y = principalDf['PCA2']
+z = principalDf['PCA3']
+
+# plot
+ax.scatter(x, y, z, s=40, c=np.array(cluster.labels_)>-1, marker='o', cmap=cmap, alpha=1)
+
+ax.set_xlabel('X Label')
+ax.set_ylabel('Y Label')
+ax.set_zlabel('Z Label')
+
+plt.show()
+```
+
+```{python}
+principalDf['labels'] = cluster.labels_ > -1
+sns.pairplot(data=principalDf, hue='labels')
+```

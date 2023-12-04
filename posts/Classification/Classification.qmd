@@ -1,0 +1,354 @@
+---
+title: "Classification: Predicting the onset of diabetes"
+author: "Anushka S"
+date: "2023-12-03"
+categories: [Classification, Machine Learning, SVM, Random Forest, Decision Tree, XGBoost]
+
+---
+
+```{python}
+import pandas as pd
+import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
+
+df_diabetes = pd.read_csv("diabetes.csv")
+df_diabetes.head(10)
+```
+
+
+```{python}
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+
+f, ax = plt.subplots(figsize=(8, 8))
+
+corr = df_diabetes.corr()
+sns.heatmap(corr,
+    cmap=sns.diverging_palette(220, 10, as_cmap=True),
+    vmin=-1.0, vmax=1.0,
+    annot = True,
+    square=True, ax=ax);
+plt.show()
+```
+
+```{python}
+print(df_diabetes.info())
+print(df_diabetes.drop(columns=['Pregnancies', 'Outcome']).isin([0, 0.0]).sum())
+```
+
+```{python}
+# storing outcomes in dataframe y, and storing pregnancies in a separate list temporarily
+# instead of creating a copy of another dataframe
+pregnancies = df_diabetes['Pregnancies']
+y = df_diabetes['Outcome']
+df_diabetes = df_diabetes.drop(columns=['Pregnancies', 'Outcome'])
+# making the 0 missing values into Nan values for imputing
+df_diabetes.replace(0, np.nan, inplace=True)
+print(f"Number of missing values = {np.isnan(df_diabetes.to_numpy()).sum()}")
+df_diabetes['Pregnancies'] = pregnancies
+columns = df_diabetes.columns
+df_diabetes.head(5)
+```
+
+```{python}
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+y = y
+X = (df_diabetes).to_numpy()
+# 80-20 Train-Test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1) 
+
+scaling_x=StandardScaler()
+X_train=scaling_x.fit_transform(X_train)
+X_test=scaling_x.transform(X_test)
+
+# Imputing missing values using knn
+# knn imputation transform for the dataset
+
+from sklearn.impute import KNNImputer
+
+# print total missing
+print('Missing: %d' % sum(np.isnan(X).flatten()))
+# define imputer
+imputer = KNNImputer(n_neighbors=5) # taking 5 neighbours
+# fit transform on the dataset for training and testing set
+X_train_imputed = imputer.fit_transform(X_train)
+X_test_imputed = imputer.transform(X_test)
+# print total missing
+X_trans = np.concatenate((X_train_imputed, X_test_imputed), axis=0)
+print('Missing: %d' % sum(np.isnan(X_trans).flatten()))
+```
+
+```{python}
+df_diabetes_cleaned = pd.DataFrame(X_trans, columns = columns)
+df_diabetes_cleaned.head(5)
+```
+
+```{python}
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from pprint import pprint
+best_preds = []
+model_names = []
+```
+
+```{python}
+#| code-fold: false
+from sklearn.model_selection import GridSearchCV
+from sklearn.svm import SVC
+
+model_names.append('Support Vector Machine')
+
+# Create an SVM model
+svm_model = SVC()
+
+print("Current params:")
+pprint(svm_model.get_params())
+
+svm_model.fit(X_train_imputed, y_train)
+
+y_pred_best = svm_model.predict(X_test_imputed)
+
+best_preds.append([accuracy_score(y_test, y_pred_best), precision_score(y_test, y_pred_best), recall_score(y_test, y_pred_best), f1_score(y_test, y_pred_best)])
+```
+
+```{python}
+#| echo: false
+print()
+print("SVM classifier")
+print(f"Accuracy: {accuracy_score(y_test, y_pred)}")
+print(f"F1 score: {f1_score(y_test, y_pred)}")
+ 
+```
+
+```{python}
+#| echo: false
+cm = confusion_matrix(y_test, y_pred_best, labels=best_model_svm.classes_)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Non-Diabetic', 'Diabetic'])
+disp.plot()
+plt.show()
+```
+
+
+```{python}
+#| code-fold: false
+from sklearn.tree import DecisionTreeClassifier
+
+model_names.append('Decision Tree')
+
+dt = DecisionTreeClassifier()
+
+print("Current params:")
+pprint(dt.get_params())
+
+dt.fit(X_train_imputed, y_train)
+
+params = {
+    'max_depth': [None, 5, 10, 15],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': range(1, 5),
+    'max_features': ['auto', 'sqrt', 'log2', None],
+    'criterion': ['gini', 'entropy'],
+}
+
+grid_search_dt = GridSearchCV(dt, params, cv=3, scoring='accuracy')
+
+# Fit the model to the data and perform hyperparameter tuning
+grid_search_dt.fit(X_train_imputed, y_train)
+
+# Print the best hyperparameters
+print("Best Hyperparameters:")
+pprint(grid_search_dt.best_params_)
+
+# Get the best model
+best_model_dt = grid_search_dt.best_estimator_
+
+y_pred = dt.predict(X_test_imputed)
+y_pred_best = best_model_dt.predict(X_test_imputed)
+
+best_preds.append([accuracy_score(y_test, y_pred_best), precision_score(y_test, y_pred_best), recall_score(y_test, y_pred_best), f1_score(y_test, y_pred_best)])
+```
+
+```{python}
+#| echo: false
+print()
+print("DT without hyperparameter tuning")
+print(f"Accuracy: {accuracy_score(y_test, y_pred)}")
+print(f"F1 score: {f1_score(y_test, y_pred)}")
+print()
+print("DT with hyperparameter tuning")
+print(f"Accuracy: {accuracy_score(y_test, y_pred_best)}")
+print(f"F1 score: {f1_score(y_test, y_pred_best)}")  
+```
+```{python}
+#| echo: false
+cm = confusion_matrix(y_test, y_pred_best, labels=best_model_dt.classes_)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Non-Diabetic', 'Diabetic'])
+
+disp.plot()
+plt.show()
+```
+```{python}
+#| code-fold: false
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import RandomizedSearchCV
+
+model_names.append('Random Forest')
+
+rf = RandomForestClassifier()
+print("Current params:")
+pprint(rf.get_params())
+
+rf.fit(X_train_imputed, y_train)
+
+max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
+max_depth.append(None)
+
+# Create the random grid
+random_grid = {'n_estimators': [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)],
+               'max_features': ['auto', 'sqrt'],
+               'max_depth': max_depth,
+               'min_samples_split': [2, 5, 10],
+               'min_samples_leaf': [1, 2, 4],
+               'bootstrap': [True, False]}
+
+rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, n_iter = 100, cv = 3, verbose=2, random_state=42, n_jobs = -1)
+# Fit the random search model
+rf_random.fit(X_train_imputed, y_train)
+
+# Print the best hyperparameters
+print("Best Hyperparameters:")
+pprint(rf_random.best_params_)
+
+# Get the best model
+best_model_rf = rf_random.best_estimator_
+
+y_pred = rf.predict(X_test_imputed)
+y_pred_best = best_model_rf.predict(X_test_imputed)
+
+best_preds.append([accuracy_score(y_test, y_pred_best), precision_score(y_test, y_pred_best), recall_score(y_test, y_pred_best), f1_score(y_test, y_pred_best)])
+```
+```{python}
+#| echo: false
+print()
+print("RF without hyperparameter tuning")
+print(f"Accuracy: {accuracy_score(y_test, y_pred)}")
+print(f"F1 score: {f1_score(y_test, y_pred)}")
+print()
+print("RF with hyperparameter tuning")
+print(f"Accuracy: {accuracy_score(y_test, y_pred_best)}")
+print(f"F1 score: {f1_score(y_test, y_pred_best)}")  
+```
+```{python}
+#| echo: false
+cm = confusion_matrix(y_test, y_pred_best, labels=best_model_rf.classes_)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Non-Diabetic', 'Diabetic'])
+disp.plot()
+plt.show()
+```
+
+```{python}
+#| code-fold: false
+from xgboost import XGBClassifier
+from skopt import BayesSearchCV
+
+model_names.append('XGBoost')
+
+# Create an XGBoost classifier
+xgb = XGBClassifier()
+
+print("Current params:")
+pprint(xgb.get_params())
+
+xgb.fit(X_train_imputed, y_train)
+
+# Define the parameter search space
+param_space = {
+    'max_depth': (3, 10),
+    'learning_rate': (0.01, 1.0, 'log-uniform'),
+    'n_estimators': (50, 200),
+    'min_child_weight': (1, 10),
+    'subsample': (0.1, 1.0, 'uniform'),
+    'gamma': (0.0, 1.0, 'uniform'),
+    'colsample_bytree': (0.1, 1.0, 'uniform'),
+}
+
+# Instantiate BayesSearchCV
+bayes_search_xgb = BayesSearchCV(
+    xgb,
+    param_space,
+    cv=3,  # Number of cross-validation folds
+)
+
+np.int = np.int_
+# Fit the model to the training data and perform hyperparameter tuning
+bayes_search_xgb.fit(X_train_imputed, y_train)
+
+# Print the best hyperparameters
+print("Best Hyperparameters:")
+pprint(bayes_search_xgb.best_params_)
+
+# Get the best model
+best_model_xgb = bayes_search_xgb.best_estimator_
+
+
+y_pred = xgb.predict(X_test_imputed)
+y_pred_best = best_model_xgb.predict(X_test_imputed)
+
+best_preds.append([accuracy_score(y_test, y_pred_best), precision_score(y_test, y_pred_best), recall_score(y_test, y_pred_best), f1_score(y_test, y_pred_best)])
+```
+
+```{python}
+#| echo: false
+print()
+print("XGB without hyperparameter tuning")
+print(f"Accuracy: {accuracy_score(y_test, y_pred)}")
+print(f"F1 score: {f1_score(y_test, y_pred)}")
+print()
+print("XGB with hyperparameter tuning")
+print(f"Accuracy: {accuracy_score(y_test, y_pred_best)}")
+print(f"F1 score: {f1_score(y_test, y_pred_best)}")  
+```
+
+```{python}
+#| echo: false
+cm = confusion_matrix(y_test, y_pred_best, labels=best_model_xgb.classes_)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Non-Diabetic', 'Diabetic'])
+disp.plot()
+plt.show()
+```
+
+```{python}
+# tabulate their classification report
+evaluation_metrics = ['Accuracy', 'Precision', 'Recall', 'F1-score']
+plt.rcParams["figure.figsize"] = [30, 7]
+plt.rcParams["figure.autolayout"] = True
+fig, axs = plt.subplots(1, 1)
+axs.axis('tight')
+axs.axis('off')
+
+table1 = axs.table(cellText=best_preds,
+                      cellLoc = 'left',
+                      rowLabels = model_names,
+                      rowColours= ["palegreen"] * 10,
+                      colLabels=evaluation_metrics,
+                      colColours= ["palegreen"] * 10,
+                      loc='center')
+
+# Highlight cells with minimum value in each column
+for col_idx, metric in enumerate(evaluation_metrics):
+    col_values = [row[col_idx] for row in best_preds]
+    max_value_idx = col_values.index(max(col_values))
+
+    # Highlight the cell with maximum value in coral color
+    table1[max_value_idx + 1, col_idx].set_facecolor("coral")
+        
+table1.auto_set_font_size(False)
+table1.set_fontsize(14)
+table1.scale(1, 4)
+fig.tight_layout()
+plt.show()
+
+```

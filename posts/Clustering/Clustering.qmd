@@ -3,7 +3,7 @@ title: "Clustering with K-Means"
 author: "Anushka S"
 date: "2023-12-03"
 categories: [Clustering, Machine Learning, K-Means]
-
+image: []{https://cdn.hackr.io/uploads/posts/large/1600253014vJgLQIJ7nI.png}
 ---
 
 Clustering with K-Means
