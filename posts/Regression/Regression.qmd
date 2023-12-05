@@ -29,15 +29,22 @@ df_bike = pd.read_csv("SeoulBikeData.csv")
 df_bike.head(5)
 ```
 
-```{python}
-#| echo: false
-df_bike.info()
-#check for count of missing values in each column.
-df_bike.isna().sum()
-df_bike.isnull().sum()
-```
+It is important to check the dataset for any missing values before it is used for model training and testing.
 
 ```{python}
+#| echo: false
+print(df_bike.info())
+#check for count of missing values in each column.
+print(df_bike.isna().sum())
+print(df_bike.isnull().sum())
+```
+
+This dataset seems to have no missing values so we're good!
+
+Let's format the dataset to ease data processing down the line. Beginning with breaking down the 'Date' into 'Day', 'Month', and 'Year' columns in the dataset.
+```{python}
+#| code-fold: false
+
 # Can break the date into date, month, year columns and convert them into integers (from strings) for the purpose of correlation map
 days = [int((df_bike['Date'].iloc[i])[0:2]) for i in range(len(df_bike))]
 month = [int((df_bike['Date'].iloc[i])[3:5]) for i in range(len(df_bike))]
@@ -47,6 +54,7 @@ df_bike['Day'], df_bike['Month'], df_bike['Year'] = days, month, year
 df_bike.head(5)
 ```
 
+Next, we convert string values such as the values in the 'Seasons', 'Functioning Day', and 'Holiday' columns. We are able to do this by mapping the discrete set of string values to a discrete set of integer values.
 ```{python}
 #| code-fold: false
 df1_bike = df_bike.drop(columns = ['Date'])
@@ -63,6 +71,8 @@ df1_bike['Functioning Day'] = [functioning[item] for item in df1_bike['Functioni
 df1_bike.head(3)
 ```
 
+Plotting the correlation matrix to identify the relationship, and the strength of relationship between the features(variables) in the dataset and also understand how strongly they are correlated with the target variable which is the rented bike count.
+
 ```{python}
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -74,9 +84,11 @@ sns.heatmap(corr,
     square=True, ax=ax)
 ```
 
+Below, we can plot visualizations to see how each feature (variable) effects the target: Rented Bike Count.
+
 ```{python}
 plt.rcParams["figure.autolayout"] = True
-fig, ax = plt.subplots(2, 2, figsize=(18, 6));
+fig, ax = plt.subplots(2, 2, figsize=(10, 8));
 # hour vs bike count
 sns.barplot(data=df1_bike,x='Hour',y='Rented Bike Count',ax=ax[0][0], palette='viridis');
 ax[0][0].set(title='Count of Rented bikes acording to Hour');
@@ -100,14 +112,14 @@ plt.show()
 ```
 
 ```{python}
-fig,ax=plt.subplots(figsize=(20,8))
+fig,ax=plt.subplots(figsize=(10,8))
 sns.pointplot(data=df1_bike,x='Hour',y='Rented Bike Count',hue='Seasons',ax=ax);
 ax.set(title='Count of Rented bikes acording to seasons and hour of the day');
 ```
 
 ```{python}
 
-fig, ax = plt.subplots(figsize=(30, 6));
+fig, ax = plt.subplots(figsize=(10, 8));
 # temperature vs bike count
 # Convert temperature in groups of 5C and average the rented bike counts for that range (rounding to 5s)
 temp_min, temp_max = round(min(df1_bike['Temperature(C)'])/5)*5, round(max(df1_bike['Temperature(C)'])/5)*5
@@ -124,13 +136,18 @@ ax.set(title='Count of Rented bikes acording to Temperature');
 # plt.show()
 ```
 
+Printing the regression plot (Dependent Features vs Target Varibale).
+
 ```{python}
 #| code-fold: false
-# printing the regression plot for all the numerical features
-fig,ax=plt.subplots(4, 4, figsize=(40,40)) # since we know there are 16 features
+fig,ax=plt.subplots(4, 4, figsize=(10,10)) # since we know there are 16 features
 for idx, col in enumerate(df1_bike.columns):
   sns.regplot(x=df1_bike[col],y=df1_bike['Rented Bike Count'],scatter_kws={"color": 'blue'}, line_kws={"color": "black"}, ax=ax[idx//4][idx%4])
 ```
+
+To train and evaluate the machine learning models we need to split the dataset appropriately into the training and testing datasets.
+Hence, we perform an 80-20 train-test split here.
+
 
 ```{python}
 from sklearn.model_selection import train_test_split
@@ -139,6 +156,30 @@ y = df1_bike['Rented Bike Count']
 X = (df1_bike.drop(columns = ['Rented Bike Count'])).to_numpy()
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 ```
+
+The following are the models used for estimating the number of bikes rented given other data.
+The code implementations for each can be found in the scikit-learn library (linked for each model), and the model paramters used are default parameters.
+1. *Linear regression model*
+[Linear regression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html) is a simple yet powerful algorithm that models the relationship between the input features and the target variable by fitting a linear equation to the observed data. The main algorithm involves finding the coefficients that minimize the sum of squared differences between the predicted and actual values. This is typically achieved using the Ordinary Least Squares (OLS) method, aiming to optimize the line's parameters to best represent the data points.
+
+2. *Support Vector Machine (Regressor)*
+In regression tasks, [Support Vector Machines](https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVR.html#sklearn.svm.SVR) (SVM) aim to find the hyperplane that best represents the relationship between the input features and the target variable. The primary algorithm involves identifying the support vectors and determining the optimal hyperplane to maximize the margin while minimizing the error. SVM uses a loss function that penalizes deviations from the regression line, and the algorithm seeks to find the coefficients that minimize this loss.
+
+3. *Ridge Regression*
+[Ridge Regression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html#sklearn.linear_model.Ridge) is an extension of linear regression that introduces a regularization term to prevent overfitting. The main algorithm involves adding a penalty term to the linear regression objective function, which is proportional to the square of the L2 norm of the coefficients. This regularization term helps stabilize the model by shrinking the coefficients, particularly useful when dealing with multicollinearity.
+
+4. *Lasso Regression*
+[Lasso Regression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lasso.html#sklearn.linear_model.Lasso), similar to Ridge Regression, introduces regularization to linear regression. The main algorithm incorporates a penalty term, but in this case, it is proportional to the absolute value of the L1 norm of the coefficients. Lasso regression is effective for feature selection as it tends to produce sparse coefficient vectors, driving some coefficients to exactly zero.
+
+5. *Gradient Boosting Regressor*
+[Gradient Boosting Regressor](https://scikit-learn.org/stable/auto_examples/ensemble/plot_gradient_boosting_regression.html) is an ensemble learning method that builds a series of decision trees sequentially. The main algorithm involves fitting a weak learner (usually a shallow decision tree) to the residuals of the previous trees. The predictions of individual trees are combined to improve overall accuracy. The algorithm minimizes a loss function by adjusting the weights of the weak learners.
+
+6. *Random Forest Regressor*
+[Random Forest Regressor](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html) is an ensemble learning method that constructs multiple decision trees during training. The main algorithm involves training each tree on a random subset of the training data and features. The predictions of individual trees are then averaged or aggregated to reduce overfitting and improve generalization. Random Forest leverages the diversity among trees for robust predictions.
+
+7. *Decision Tree Regressor*
+[Decision Tree Regressor](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html#sklearn.tree.DecisionTreeRegressor) models the relationship between input features and the target variable by recursively splitting the data based on feature thresholds. The main algorithm involves selecting the best split at each node to minimize the variance of the target variable. Decision trees are constructed until a stopping criterion is met, creating a tree structure that facilitates predictive modeling.
+
 
 ```{python}
 #| code-fold: false
@@ -174,6 +215,22 @@ evaluation_metrics = ['Mean Squared Error (MSE)',
 
 ```
 
+The model is fit on the training data, and predicted for the testing data. Regression models are commonly evaluated on the following metrics:
+1. *Mean Squared Error (MSE)*: MSE calculates the average squared difference between the predicted and actual values, providing a measure of the model's precision.
+$ \text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2$
+
+2. *Root Mean Squared Error (RMSE)*: RMSE is the square root of MSE and represents the average magnitude of the residuals in the same units as the target variable.
+$ \text{RMSE} = \sqrt{\text{MSE}}$
+
+3. *Mean Absolute Error (MAE)*: MAE calculates the average absolute difference between the predicted and actual values, providing a measure of the model's accuracy.
+$ \text{MAE} = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|$
+
+4. *R2 Score*: R2 Score, or the coefficient of determination, measures the proportion of the variance in the dependent variable that is predictable from the independent variables.
+$ R^2 = 1 - \frac{\text{SSR}}{\text{SST}} where \text{SSR} is the sum of squared residuals, and \text{SST} is the total sum of squares.$
+
+5. *Explained Variance Score*: The Explained Variance Score measures the proportion by which the model's variance is reduced compared to a simple mean baseline.
+$ \text{Explained Variance} = 1 - \frac{\text{Var}(y - \hat{y})}{\text{Var}(y)} where where y is the actual values and \hat{y} is the predicted values$
+
 ```{python}
 #| code-fold: false
 y_preds = [] # list of model predictions
@@ -194,8 +251,10 @@ for model in models:
 
 ```
 
+Let us visualize the outputs of the linear models 'Linear Regression Model','Support Vector Machine (Regression)',
+'Ridge Regression', and 'Lasso Regression'. and evaluate the results.
 ```{python}
-plt.rcParams["figure.figsize"] = [10,10]
+plt.rcParams["figure.figsize"] = [10,7]
 plt.rcParams["figure.autolayout"] = True
 fig, axs = plt.subplots(1, 1)
 axs.axis('tight')
@@ -225,8 +284,9 @@ plt.show()
 
 ```
 
+Now, let us compare the performance of the linear models against non linear models on Linear Regression.
 ```{python}
-plt.rcParams["figure.figsize"] = [10, 10]
+plt.rcParams["figure.figsize"] = [10, 7]
 plt.rcParams["figure.autolayout"] = True
 fig, axs = plt.subplots(1, 1)
 axs.axis('tight')
@@ -254,6 +314,9 @@ fig.tight_layout()
 plt.show()
 ```
 
+As we can see, non-linear models, due to their complex structure and abilty to map and analyze/learn from complex data, perform better on this task. However, it is not always that non-linear models are better than linear models since we must keep in mind the computational expense and efficiency of a model for a task, as well as the [bias-variance](https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote12.html) tradeoff which again, is dependent not only on the model but also on the dataset/application at hand.
+
+Analysing the difference between the actual and predicted values for the regression task by each model on 3 randomly chosen data points.
 ```{python}
 # printing how far the predicted value is to the actual value for a random row in X
 import random
@@ -273,6 +336,13 @@ for i in range(3):
 
 ```
 
+
+**Non Linear Regression**
+[Nonlinear regression](https://www.mathworks.com/discovery/nonlinear-regression.html) is a statistical technique that helps describe nonlinear relationships in experimental data. Nonlinear regression models are generally assumed to be parametric, where the model is described as a nonlinear equation. Typically machine learning methods are used for non-parametric nonlinear regression.
+Parametric nonlinear regression models the dependent variable (also called the response) as a function of a combination of nonlinear parameters and one or more independent variables (called predictors). The model can be univariate (single response variable) or multivariate (multiple response variables).The parameters can take the form of an exponential, trigonometric, power, or any other nonlinear function. 
+
+The non-linear [dataset](https://github.com/Lawrence-Krukrubo) models China's GDP value for each year from 1960-2014. A sample of the dataset and the dataset visualization can be seen below.
+
 ```{python}
 df_gdp = pd.read_csv("China_GDP.csv")
 print(df_gdp.info())
@@ -287,6 +357,7 @@ sns.scatterplot(data=df_gdp, x = 'Value', y = 'Year');
 plt.show()
 ```
 
+We try to apply a regression line plot for the data. We see that the regression line is not able to accurately capture a linear relationship due to the non-linear relationship between the variables.
 ```{python}
 #| code-fold: false
 # Regression line plot
@@ -294,12 +365,15 @@ sns.regplot(x=df_gdp['Value'],y=df_gdp['Year'],scatter_kws={"color": 'blue'}, li
 plt.show()
 ```
 
+Splitting the dataset into 80-20 training-testing set to train and evaluate the aforementioned models. 
 ```{python}
 from sklearn.model_selection import train_test_split
 y = df_gdp['Year']
 X = (df_gdp.drop(columns = ['Year'])).to_numpy()
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 ```
+
+We can plot the training set points as well as the true test set points and predicted test set points for each model (Linear and Non-Linear) to visualize model accuracy and performance. Again, we see that the linear models struggle to accurately predict the target value for a non-linear dataset.
 
 ```{python}
 fig, ax = plt.subplots(2,2, figsize=(10, 10));
@@ -321,6 +395,7 @@ plt.title("True vs Predicted Performance of Linear Regression Models")
 plt.show()
 ```
 
+However, the complex, non-linear models are able to capture and analyze the non-linearity and predict the target variable value more accurately.
 ```{python}
 
 y_preds = [] # list of model predictions
@@ -357,8 +432,9 @@ plt.show()
 
 ```
 
+We chart the model performance for the non-linear models. The models used for non-linear regression are *Random Forest Regressor*, *Decision Tree Regressor*, and *Gradient Boost Regressor*.
 ```{python}
-plt.rcParams["figure.figsize"] = [30, 7]
+plt.rcParams["figure.figsize"] = [10, 7]
 plt.rcParams["figure.autolayout"] = True
 fig, axs = plt.subplots(1, 1)
 axs.axis('tight')
@@ -388,10 +464,11 @@ plt.show()
 
 ```
 
+Once again, we analyze the difference between the actual and predicted values for the regression task by each model on 3 randomly chosen data points.
 ```{python}
 # printing how far the predicted value is to the actual value for a random row in X
 import random
-fig, ax = plt.subplots(figsize=(30, 5));
+fig, ax = plt.subplots(figsize=(10, 5));
 
 length = len(model_names[4:])
 
@@ -406,3 +483,5 @@ for i in range(3):
     plt.show()
 
 ```
+
+From this blog, we get a glimpse into the performance and approach to applying the appropriate based on the type of dataset at hand.
