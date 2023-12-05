@@ -757,26 +757,26 @@ F1 score: 0.6666666666666666</code></pre>
 Best Hyperparameters:
 {'criterion': 'gini',
  'max_depth': 5,
- 'max_features': 'log2',
- 'min_samples_leaf': 4,
- 'min_samples_split': 5}</code></pre>
+ 'max_features': 'sqrt',
+ 'min_samples_leaf': 2,
+ 'min_samples_split': 10}</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="12">
 <div class="cell-output cell-output-stdout">
 <pre><code>
 DT without hyperparameter tuning
-Accuracy: 0.7012987012987013
-F1 score: 0.5740740740740741
+Accuracy: 0.7207792207792207
+F1 score: 0.6055045871559633
 
 DT with hyperparameter tuning
-Accuracy: 0.7532467532467533
-F1 score: 0.5681818181818181</code></pre>
+Accuracy: 0.7402597402597403
+F1 score: 0.6363636363636364</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="13">
 <div class="cell-output cell-output-display">
-<p><img src="Classification_files/figure-html/cell-14-output-1.png" width="574" height="430"></p>
+<p><img src="Classification_files/figure-html/cell-14-output-1.png" width="574" height="429"></p>
 </div>
 </div>
 <p><strong>Random Forest Classification</strong></p>
@@ -844,23 +844,23 @@ F1 score: 0.5681818181818181</code></pre>
 Fitting 3 folds for each of 100 candidates, totalling 300 fits
 Best Hyperparameters:
 {'bootstrap': False,
- 'max_depth': 110,
+ 'max_depth': 30,
  'max_features': 'sqrt',
  'min_samples_leaf': 2,
- 'min_samples_split': 2,
- 'n_estimators': 600}</code></pre>
+ 'min_samples_split': 10,
+ 'n_estimators': 800}</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="15">
 <div class="cell-output cell-output-stdout">
 <pre><code>
 RF without hyperparameter tuning
-Accuracy: 0.8051948051948052
-F1 score: 0.7058823529411765
+Accuracy: 0.8311688311688312
+F1 score: 0.7400000000000001
 
 RF with hyperparameter tuning
-Accuracy: 0.8181818181818182
-F1 score: 0.7254901960784313</code></pre>
+Accuracy: 0.8051948051948052
+F1 score: 0.7058823529411765</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="16">
@@ -964,13 +964,13 @@ F1 score: 0.7254901960784313</code></pre>
  'validate_parameters': None,
  'verbosity': None}
 Best Hyperparameters:
-OrderedDict([('colsample_bytree', 0.1),
-             ('gamma', 1.0),
-             ('learning_rate', 0.13052021185631646),
-             ('max_depth', 4),
-             ('min_child_weight', 10),
-             ('n_estimators', 66),
-             ('subsample', 1.0)])</code></pre>
+OrderedDict([('colsample_bytree', 0.16330485291293845),
+             ('gamma', 0.5998228910473469),
+             ('learning_rate', 0.31016606360093674),
+             ('max_depth', 8),
+             ('min_child_weight', 2),
+             ('n_estimators', 87),
+             ('subsample', 0.9281642866051433)])</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="18">
@@ -981,8 +981,8 @@ Accuracy: 0.7727272727272727
 F1 score: 0.6728971962616823
 
 XGB with hyperparameter tuning
-Accuracy: 0.7922077922077922
-F1 score: 0.6862745098039216</code></pre>
+Accuracy: 0.7272727272727273
+F1 score: 0.625</code></pre>
 </div>
 </div>
 <div class="cell" data-execution_count="19">

@@ -303,23 +303,23 @@ Emission Matrix:</code></pre>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">0</td>
-<td>3</td>
+<td>1</td>
 <td>0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
-<td>2</td>
+<td>4</td>
 <td>0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
-<td>6</td>
+<td>5</td>
 <td>0</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
-<td>6</td>
 <td>1</td>
+<td>0</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
@@ -387,7 +387,7 @@ Emission Matrix:</code></pre>
 Even though the 'emissionprob_' attribute is set, it will be overwritten during initialization because 'init_params' contains 'e'</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Generated score: -26037.75132903366</code></pre>
+<pre><code>Generated score: -26111.908215770163</code></pre>
 </div>
 </div>
 <p>Recovered states vs Generated states:</p>
@@ -432,28 +432,28 @@ Emission Matrix:</code></pre>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">1</td>
-<td>0.111</td>
-<td>0.169</td>
+<td>0.170</td>
+<td>0.100</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">2</td>
-<td>0.097</td>
 <td>0.168</td>
+<td>0.096</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">3</td>
-<td>0.102</td>
 <td>0.165</td>
+<td>0.111</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">4</td>
-<td>0.106</td>
-<td>0.167</td>
+<td>0.164</td>
+<td>0.104</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">5</td>
-<td>0.112</td>
-<td>0.160</td>
+<td>0.171</td>
+<td>0.094</td>
 </tr>
 </tbody>
 </table>
@@ -495,19 +495,19 @@ Emission Matrix:</code></pre>
 Classification Report:
               precision    recall  f1-score   support
 
-           0       0.25      0.10      0.15      9847
-           1       0.20      0.42      0.27      5153
+           0       0.82      0.90      0.86     10061
+           1       0.75      0.60      0.66      4939
 
-    accuracy                           0.21     15000
-   macro avg       0.22      0.26      0.21     15000
-weighted avg       0.23      0.21      0.19     15000
+    accuracy                           0.80     15000
+   macro avg       0.78      0.75      0.76     15000
+weighted avg       0.80      0.80      0.79     15000
 </code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="Probability_files/figure-html/cell-11-output-2.png" width="553" height="429"></p>
+<p><img src="Probability_files/figure-html/cell-11-output-2.png" width="553" height="431"></p>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="10">
-<pre><code>&lt;sklearn.metrics._plot.roc_curve.RocCurveDisplay at 0x290e25c0ee0&gt;</code></pre>
+<pre><code>&lt;sklearn.metrics._plot.roc_curve.RocCurveDisplay at 0x2911d9aad70&gt;</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <p><img src="Probability_files/figure-html/cell-11-output-4.png" width="589" height="429"></p>
@@ -559,10 +559,10 @@ weighted avg       0.23      0.21      0.19     15000
 <div class="cell-output cell-output-stdout">
 <pre><code>Output:315116246446644245311321631164152133625144543631656626566666 
 Die:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFLLLLLLLLLLLL 
-Viterbi:FFFFFFFFFFFFFLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLFFFFFFFFFFFFFFF
+Viterbi:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFLLLLLLLLLLLLLLL
 Output:222555441666566563564324364131513465146353411126414626253356 
 Die:FFFFFFFFLLLLLLLLLLLLLFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFL 
-Viterbi:FFFFFFFFFFFFFFFFFFFFLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL</code></pre>
+Viterbi:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF</code></pre>
 </div>
 </div>
 <p>Detailing the probability theory behind the Hidden Markov Model The Baum-Welch algorithm, also known as the Forward-Backward algorithm, is a parameter estimation technique for Hidden Markov Models (HMMs). Named after Leonard Baum and Lloyd Welch, this algorithm is a form of the Expectation-Maximization (EM) algorithm. Its primary goal is to iteratively refine the parameters of an HMM based on observed data, making it a powerful tool for model training.</p>
