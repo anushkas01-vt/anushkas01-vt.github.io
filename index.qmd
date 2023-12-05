@@ -1,5 +1,5 @@
 ---
-title: "CS5805"
+title: "CS5805: Machine Learning"
 listing:
   contents: posts
   sort: "date desc"
@@ -12,3 +12,4 @@ title-block-banner: true
 ---
 
 
+Blog posts by: Anushka S

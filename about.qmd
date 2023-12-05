@@ -4,16 +4,15 @@ image: profile.jpg
 about:
   template: jolla
   links:
-    - icon: twitter
-      text: Twitter
-      href: https://twitter.com
     - icon: linkedin
       text: LinkedIn
-      href: https://linkedin.com
+      href: https://www.linkedin.com/in/anushka-sivakumar/
     - icon: github
       text: Github
-      href: https://github.com
+      href: https://github.com/anushkas01-vt/
 
 ---
 
-About this blog
+This is the blog page designed for the CS5805 Machine Learning class. This blog covers topics such as Probability Theory, Anomaly Detection, Clustering, Classification, and Regression. This blog is a work in progress. All the code files (ipynb) and datasets used in this blog can be found [here!](https://github.com/anushkas01-vt/anushkas01-vt.github.io/tree/main/codeFiles).
+
+Thanks for reading!

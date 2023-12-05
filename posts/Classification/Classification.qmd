@@ -110,6 +110,8 @@ df_diabetes_cleaned.head(5)
 We can now begin classification and compare various popular classification models such as Support Vector Machines (SVM), Decision Trees (DT), Random Forest (RF), and XGBoost (XGB). We also explore some hyperparameter tuning parameters and compare all the models on their performance on this dataset. Hyperparameter tuning relies more on experimental results than theory, and thus the best method to determine the optimal settings is to try many different combinations evaluate the performance of each model. 
 
 The evaluation metrics are:
+
+
 1. Accuracy: Accuracy is a measure of overall correctness and is calculated as the ratio of correctly predicted instances to the total number of instances in the dataset.
 $Accuracy = \frac{True Positive + True Negative}{True Positive + True Negative + False Positive + False Negative}$
 

@@ -39,7 +39,7 @@ We then use the sample() method to generate die roll and corresponding state sam
 #| code-line-numbers: true
 from hmmlearn import hmm
 
-gen_model = hmm.CategoricalHMM(n_components=2, n_iter=100)
+gen_model = hmm.CategoricalHMM(n_components=2, n_iter=100, init_params = 'se')
 
 gen_model.startprob_ = np.array([1.0, 0.0])
 
@@ -248,11 +248,11 @@ The parameters of a HMM are given by $\theta=(A,B,\pi)$, where:
 * $B$ is the emission matrix, which defines the probability of emitting a given observation from a given state.
 * $\pi$ is the initial state distribution, which defines the probability of being in each state at the beginning of the sequence.
 
-$A=\{a_{ij}\}=P(X_{t}=j|X_{t-1}=i) is the state transition matrix$
+$A=\{a_{ij}\}=P(X_{t}=j|X_{t-1}=i)$ is the state transition matrix
 
-$\pi=\{\pi_{i}\}=P(X_{1}=i) is the initial state distribution$
+$\pi=\{\pi_{i}\}=P(X_{1}=i)$ is the initial state distribution
 
-$B=\{b_{j}(y_{t})\}=P(Y_{t}=y_{t}|X_{t}=j) is the emission matrix$
+$B=\{b_{j}(y_{t})\}=P(Y_{t}=y_{t}|X_{t}=j)$ is the emission matrix
 
 Given observation sequences $(Y=(Y_{1}=y_{1},Y_{2}=y_{2},...,Y_{T}=y_{T}))$ the
 algorithm tries to find the parameters $(\theta)$ that maximise the probability of the
@@ -266,23 +266,23 @@ The algorithm starts by choosing some initial values for the HMM parameters $\th
 
 The forward-backward algorithm is used for finding probable paths.
 
-$$
+
 Forward Procedure
-(\alpha_{i}(t)=P(Y_{1}=y_{1},...,Y_{t}=y_{t},X_{t}=i|\theta)) be the probability of seeing (y_{1},...,y_{t}) and being in state i at time t. Found recursively using:
+$(\alpha_{i}(t)=P(Y_{1}=y_{1},...,Y_{t}=y_{t},X_{t}=i|\theta))$ be the probability of seeing $(y_{1},...,y_{t})$ and being in state $i$ at time $t$. Found recursively using:
 
-\(\alpha_{i}(1)=\pi_{i}b_{i}(y_{1})\)
+$\(\alpha_{i}(1)=\pi_{i}b_{i}(y_{1})\)$
 
-\(\alpha_{j}(t+1)=b_{j}(y_{t+1})\sum_{i=1}^{N}\alpha_{i}(t)a_{ij}\)
+$\(\alpha_{j}(t+1)=b_{j}(y_{t+1})\sum_{i=1}^{N}\alpha_{i}(t)a_{ij}\)$
 
 
 Backward Procedure
-(\beta_{i}(t)=P(Y_{t+1}=y_{t+1},...,Y_{T}=y_{T}|X_{t}=i,\theta)) be the probability of ending partial sequence (y_{t+1},...,y_{T}) given starting state i at time t. 
+$(\beta_{i}(t)=P(Y_{t+1}=y_{t+1},...,Y_{T}=y_{T}|X_{t}=i,\theta))$ be the probability of ending partial sequence $(y_{t+1},...,y_{T})$ given starting state $i$ at time $t$. 
 
-(\beta_{i}(t)) is computed recursively as:
+$(\beta_{i}(t))$ is computed recursively as:
 
-\(\beta_{i}(T)=1\)
-\(\beta_{i}(t)=\sum_{j=1}^{N}\beta_{j}(t+1)a_{ij}b_{j}(y_{t+1}))
-$$
+$\(\beta_{i}(T)=1\)$
+$\(\beta_{i}(t)=\sum_{j=1}^{N}\beta_{j}(t+1)a_{ij}b_{j}(y_{t+1}))$
+
 
 ```{python}
 def forward(states, sequence, a, b, pi, key):
@@ -334,27 +334,22 @@ Calculate the probabilities of being in each state at each time step given the o
 $i$ at time $t$ given the entire observed sequence.
 Calculate the joint probabilities of transitioning from state $i$ to state $j$ at consecutive time steps given the observed sequence. 
 
-$$
-\gamma_t(i) = \frac{\alpha_t(i) \cdot \beta_t(i)}{\sum_{j=1}^{N} \alpha_t(j) \cdot \beta_t(j)}
+$\gamma_t(i) = \frac{\alpha_t(i) \cdot \beta_t(i)}{\sum_{j=1}^{N} \alpha_t(j) \cdot \beta_t(j)}$
 
-\xi_t(i, j) = \frac{\alpha_t(i) \cdot a_{ij} \cdot b_j(o_{t+1}) \cdot \beta_{t+1}(j)}{\sum_{k=1}^{N} \sum_{l=1}^{N} \alpha_t(k) \cdot a_{kl} \cdot b_l(o_{t+1}) \cdot \beta_{t+1}(l)}
-$$
+$\xi_t(i, j) = \frac{\alpha_t(i) \cdot a_{ij} \cdot b_j(o_{t+1}) \cdot \beta_{t+1}(j)}{\sum_{k=1}^{N} \sum_{l=1}^{N} \alpha_t(k) \cdot a_{kl} \cdot b_l(o_{t+1}) \cdot \beta_{t+1}(l)}$
+
 
 The Maximization step:
 Update the model parameters, including the initial state probabilities, transition probabilities, and emission probabilities.
 The updated parameters are computed by normalizing the expected counts derived from the E-step.
 
-$$
+$\hat{\pi}_i = \gamma_1(i)$
 
-\hat{\pi}_i = \gamma_1(i)
+$\hat{a}_{ij} = \frac{\sum_{t=1}^{T-1} \xi_t(i, j)}{\sum_{t=1}^{T-1} \gamma_t(i)}$
+
+$\hat{b}_i(k) = \frac{\sum_{t=1}^{T} \gamma_t(i) \cdot \delta_{o_t, k}}{\sum_{t=1}^{T} \gamma_t(i)}$
 
 
-\hat{a}_{ij} = \frac{\sum_{t=1}^{T-1} \xi_t(i, j)}{\sum_{t=1}^{T-1} \gamma_t(i)}
-
-
-\hat{b}_i(k) = \frac{\sum_{t=1}^{T} \gamma_t(i) \cdot \delta_{o_t, k}}{\sum_{t=1}^{T} \gamma_t(i)}
-
-$$
 
 
 ```{python}
@@ -502,3 +497,4 @@ def predict(sequence, states, a, b, pi):
 
 ```
 
+Hidden Markov Models are also used in many applications, one such interesting one is to identify cpgIslandsgiven a genomic sequence. You can read more about it [here!](https://doi.org/10.1017/CBO9780511790492).
