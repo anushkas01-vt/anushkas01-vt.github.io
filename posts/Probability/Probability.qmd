@@ -12,15 +12,17 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 %matplotlib inline
+import warnings
+warnings.filterwarnings("ignore")
 ```
 
-The [hmmlearn] library in Python performs Unsupervised learning and inference of Hidden Markov Models.  
+The [hmmlearn](https://hmmlearn.readthedocs.io/en/latest/) library in Python performs Unsupervised learning and inference of Hidden Markov Models.  
 
 Let us take the common Hidden Markov Model example of the ocassionally dishonest casino. In a casino, they use a fair die most of the time, but switch to the loaded die once in a while. The purpose of making use of the Hidden Markov Model is to identify instances when the dice roll is probabilistically from the fair die or the loaded die. 
 
 The probabilities for the various outcome variables have been adapted from [this textbook](https://doi.org/10.1017/CBO9780511790492).
 
-![Markov Model for dishonest casino](dice_prob.JPG){width=80%}
+![Markov Model for dishonest casino](dice_prob.JPG){width=30%}
 
 The emission probabilities are the probability of each outcome (die roll) at its current state. The transition probabilities define the probability of transitioning to a state (fair, loaded), and the start probabilities define the starting probability of being in each state.
 
@@ -246,14 +248,14 @@ The parameters of a HMM are given by $\theta=(A,B,\pi)$, where:
 * $B$ is the emission matrix, which defines the probability of emitting a given observation from a given state.
 * $\pi$ is the initial state distribution, which defines the probability of being in each state at the beginning of the sequence.
 
-$$\(A=\{a_{ij}\}=P(X_{t}=j|X_{t-1}=i)\) is the state transition matrix$$
+$A=\{a_{ij}\}=P(X_{t}=j|X_{t-1}=i) is the state transition matrix$
 
-$$\(\pi=\{\pi_{i}\}=P(X_{1}=i)\) is the initial state distribution$$
+$\pi=\{\pi_{i}\}=P(X_{1}=i) is the initial state distribution$
 
-$$\(B=\{b_{j}(y_{t})\}=P(Y_{t}=y_{t}|X_{t}=j)\) is the emission matrix$$
+$B=\{b_{j}(y_{t})\}=P(Y_{t}=y_{t}|X_{t}=j) is the emission matrix$
 
-Given observation sequences $$(Y=(Y_{1}=y_{1},Y_{2}=y_{2},...,Y_{T}=y_{T}))$$ the
-algorithm tries to find the parameters $$(\theta)$$ that maximise the probability of the
+Given observation sequences $(Y=(Y_{1}=y_{1},Y_{2}=y_{2},...,Y_{T}=y_{T}))$ the
+algorithm tries to find the parameters $(\theta)$ that maximise the probability of the
 observation.
 
 The algorithm starts by choosing some initial values for the HMM parameters $\theta = (A, B, \pi)$. Then, it repeats the following steps until convergence:
@@ -267,18 +269,18 @@ The forward-backward algorithm is used for finding probable paths.
 $$
 Forward Procedure
 (\alpha_{i}(t)=P(Y_{1}=y_{1},...,Y_{t}=y_{t},X_{t}=i|\theta)) be the probability of seeing (y_{1},...,y_{t}) and being in state i at time t. Found recursively using:
-\\
+
 \(\alpha_{i}(1)=\pi_{i}b_{i}(y_{1})\)
-\\
+
 \(\alpha_{j}(t+1)=b_{j}(y_{t+1})\sum_{i=1}^{N}\alpha_{i}(t)a_{ij}\)
-\\
+
 
 Backward Procedure
 (\beta_{i}(t)=P(Y_{t+1}=y_{t+1},...,Y_{T}=y_{T}|X_{t}=i,\theta)) be the probability of ending partial sequence (y_{t+1},...,y_{T}) given starting state i at time t. 
-\\
+
 (\beta_{i}(t)) is computed recursively as:
-\\
-\(\beta_{i}(T)=1\)\\
+
+\(\beta_{i}(T)=1\)
 \(\beta_{i}(t)=\sum_{j=1}^{N}\beta_{j}(t+1)a_{ij}b_{j}(y_{t+1}))
 $$
 
@@ -329,12 +331,12 @@ def backward(states, sequence, a, b):
 
 The Expectation step:
 Calculate the probabilities of being in each state at each time step given the observed sequence using the Forward-Backward algorithm. These probabilities represent the likelihood of the system being in state 
-$i$ at time $$t$$ given the entire observed sequence.
-Calculate the joint probabilities of transitioning from state $$i$$ to state $$j$$ at consecutive time steps given the observed sequence. 
+$i$ at time $t$ given the entire observed sequence.
+Calculate the joint probabilities of transitioning from state $i$ to state $j$ at consecutive time steps given the observed sequence. 
 
 $$
 \gamma_t(i) = \frac{\alpha_t(i) \cdot \beta_t(i)}{\sum_{j=1}^{N} \alpha_t(j) \cdot \beta_t(j)}
-\\
+
 \xi_t(i, j) = \frac{\alpha_t(i) \cdot a_{ij} \cdot b_j(o_{t+1}) \cdot \beta_{t+1}(j)}{\sum_{k=1}^{N} \sum_{l=1}^{N} \alpha_t(k) \cdot a_{kl} \cdot b_l(o_{t+1}) \cdot \beta_{t+1}(l)}
 $$
 
@@ -345,13 +347,13 @@ The updated parameters are computed by normalizing the expected counts derived f
 $$
 
 \hat{\pi}_i = \gamma_1(i)
-//
+
 
 \hat{a}_{ij} = \frac{\sum_{t=1}^{T-1} \xi_t(i, j)}{\sum_{t=1}^{T-1} \gamma_t(i)}
-//
+
 
 \hat{b}_i(k) = \frac{\sum_{t=1}^{T} \gamma_t(i) \cdot \delta_{o_t, k}}{\sum_{t=1}^{T} \gamma_t(i)}
-//
+
 $$
 
 

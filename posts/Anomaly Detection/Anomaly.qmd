@@ -21,7 +21,9 @@ As can be seen from the tabe, the data has already been normalized.
 ```{python}
 from ucimlrepo import fetch_ucirepo 
 import pandas as pd
-  
+import warnings
+warnings.filterwarnings("ignore")
+
 # fetch dataset 
 ionosphere = fetch_ucirepo(id=52) 
 
@@ -68,11 +70,11 @@ plt.show()
 We can see from the above plot that we can reduce the 34 column dimension data by projecting it into a 3D space.
 
 
-The DBSCAN algorithm is mainly based on a metric function (normally the Euclidean distance) and a radius, $${epsilon}$$. Given a sample point, its boundary is checked for other samples. If it is surrounded by at least $$m$$ minimum points, it becomes a core point. If the number of points are less than $$m$$, the point is classified as a boundary point, and if there are no other data points around within $${epsilon}$$ radius, it is considered a noise point.
+The DBSCAN algorithm is mainly based on a metric function (normally the Euclidean distance) and a radius, ${epsilon}$. Given a sample point, its boundary is checked for other samples. If it is surrounded by at least $m$ minimum points, it becomes a core point. If the number of points are less than $m$, the point is classified as a boundary point, and if there are no other data points around within ${epsilon}$ radius, it is considered a noise point.
 
 ![DBSCAN working](https://miro.medium.com/max/627/1*yT96veo7Zb5QeswV7Vr7YQ.png){width=80%}
 
-It is important to understand the optimum epsilon $${epsilon}$$ value for the best model performance to ensure that it does not classify data points with slight deviations from the normal to be considered noise (very low $${epsilon}$$) and so that it does not include data points that are noise to be normal (very large $${epsilon}$$).
+It is important to understand the optimum epsilon ${epsilon}$ value for the best model performance to ensure that it does not classify data points with slight deviations from the normal to be considered noise (very low ${epsilon}$) and so that it does not include data points that are noise to be normal (very large ${epsilon}$).
 
 ```{python}
 from sklearn.neighbors import NearestNeighbors

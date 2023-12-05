@@ -2,8 +2,22 @@
 title: "Regression Analysis: Linear Regression and Non-Linear Regression"
 author: "Anushka S"
 date: "2023-12-03"
-categories: [Regression, Machine Learning, SVM, Random Forest, Decision Tree, Gradient Boost, Linear, Non-Linear]
+categories: [Regression, Machine Learning, Supervised Learning, SVM, Random Forest, Decision Tree, Gradient Boost, Linear, Non-Linear]
 ---
+
+[Supervised learning](https://www.ibm.com/topics/supervised-learning#:~:text=Supervised%20learning%2C%20also%20known%20as,data%20or%20predict%20outcomes%20accurately.), also known as supervised machine learning, is a subcategory of machine learning and artificial intelligence. It is defined by its use of labeled datasets to train algorithms that to classify data or predict outcomes accurately.
+
+Machine Learning Regression is a technique for investigating the relationship between independent variables or features and a dependent variable or outcome. It’s used as a method for predictive modelling in machine learning, in which an algorithm is used to predict continuous outcomes. You can read more about it [here!](https://www.seldon.io/machine-learning-regression-explained#:~:text=Machine%20Learning%20Regression%20is%20a,used%20to%20predict%20continuous%20outcomes.)
+
+In this blog, we will discuss two types of regression problems, Linear Regression, and Non-Linear Regression. For each, we will compare a handful of machine learning models (linear and non-linear models) and present their results on evaluation metrics.
+
+**Linear Regression**
+This form of analysis estimates the coefficients of the linear equation, involving one or more independent variables that best predict the value of the dependent variable. Linear regression fits a straight line or surface that minimizes the discrepancies between predicted and actual output values.
+
+We'll make use of the [Seoul Bike Sharing dataset](https://archive.ics.uci.edu/dataset/560/seoul+bike+sharing+demand) which contains count of public bicycles rented per hour in the Seoul Bike Sharing System, with corresponding weather data and holiday information. 
+The dataset contains weather information (Temperature, Humidity, Windspeed, Visibility, Dewpoint, Solar radiation, Snowfall, Rainfall), the number of bikes rented per hour and date information. A sample of the dataset can be seen below. 
+The aim is to predict the bike count required at each hour for the stable supply of rental bikes. 
+
 
 ```{python}
 import pandas as pd

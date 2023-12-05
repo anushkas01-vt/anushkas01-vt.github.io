@@ -2,9 +2,16 @@
 title: "Classification: Predicting the onset of diabetes"
 author: "Anushka S"
 date: "2023-12-03"
-categories: [Classification, Machine Learning, SVM, Random Forest, Decision Tree, XGBoost]
+categories: [Classification, Machine Learning, Supervised Learning, SVM, Random Forest, Decision Tree, XGBoost]
 
 ---
+[Supervised learning](https://www.ibm.com/topics/supervised-learning#:~:text=Supervised%20learning%2C%20also%20known%20as,data%20or%20predict%20outcomes%20accurately.), also known as supervised machine learning, is a subcategory of machine learning and artificial intelligence. It is defined by its use of labeled datasets to train algorithms that to classify data or predict outcomes accurately.
+
+Classification uses machine learning algorithms that learn how to assign a class label to examples from the problem domain. The class labels are a set of discrete values. A model will use the training dataset and will calculate how to best map examples of input data to specific class labels. As such, the training dataset must be sufficiently representative of the problem and have many examples of each class label. Based on the set of class labels, classification can be binary classification (2 class labels) or multi-class classification (>2 class labels). You can read more on classification [here!](https://machinelearningmastery.com/types-of-classification-in-machine-learning/).
+
+In this blog, we will be dealing with binary classification on the Pima Indian Diabetes dataet from the [UCI Machine Learning Repository](https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database). This dataset is originally from the National Institute of Diabetes and Digestive and Kidney Diseases. The objective of the dataset is to diagnostically predict whether or not a patient has diabetes, based on certain diagnostic measurements included in the dataset. The datasets consists of several medical predictor variables and one target variable, Outcome. Predictor variables includes the number of pregnancies the patient has had, their BMI, insulin level, age, and so on.
+
+Below, we can see a sample of the dataset chosen.
 
 ```{python}
 import pandas as pd
@@ -16,7 +23,7 @@ df_diabetes = pd.read_csv("diabetes.csv")
 df_diabetes.head(10)
 ```
 
-
+We can plot the correlation between the features(columns) and in the chart below, we can see which features have a higher correlation with the tagret variable.
 ```{python}
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -33,10 +40,13 @@ sns.heatmap(corr,
 plt.show()
 ```
 
+We can view the info about the data. We see that there are no null values but there are columns having 0 values which are missing values. It is important to handle missing data and prepare it well before it is processed through the classification model.
 ```{python}
 print(df_diabetes.info())
 print(df_diabetes.drop(columns=['Pregnancies', 'Outcome']).isin([0, 0.0]).sum())
 ```
+
+We convert the missing values into Nan values so that we can apply the K nearest neighbours imputation algorithm.
 
 ```{python}
 # storing outcomes in dataframe y, and storing pregnancies in a separate list temporarily
@@ -52,7 +62,17 @@ columns = df_diabetes.columns
 df_diabetes.head(5)
 ```
 
+Before imputing the data, we:
+1. Split the data into train-test split
+2. Scale the training data and the testing data separately.
+
+The reason for splitting the data and then scaling it and then applying imputation is so that there is no data leakage between the train-test datasets. Since data leakage can make our model biased leading to incorrect results and inaccurate evaluation metric scores.
+
+The training set and the test set are then imputed separately with the [KNNImputer](https://scikit-learn.org/stable/modules/generated/sklearn.impute.KNNImputer.html) with 5 neighbours.
+Imputation for completing missing values using k-Nearest Neighbors. Each sample’s missing values are imputed using the mean value from n_neighbors nearest neighbors found in the training set. Two samples are close if the features that neither is missing are close.
+
 ```{python}
+#| code-fold: false
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 y = y
@@ -81,10 +101,28 @@ X_trans = np.concatenate((X_train_imputed, X_test_imputed), axis=0)
 print('Missing: %d' % sum(np.isnan(X_trans).flatten()))
 ```
 
+We can see, all values have been normalized and there are no missing values in the dataset.
 ```{python}
 df_diabetes_cleaned = pd.DataFrame(X_trans, columns = columns)
 df_diabetes_cleaned.head(5)
 ```
+
+We can now begin classification and compare various popular classification models such as Support Vector Machines (SVM), Decision Trees (DT), Random Forest (RF), and XGBoost (XGB). We also explore some hyperparameter tuning parameters and compare all the models on their performance on this dataset. Hyperparameter tuning relies more on experimental results than theory, and thus the best method to determine the optimal settings is to try many different combinations evaluate the performance of each model. 
+
+The evaluation metrics are:
+1. Accuracy: Accuracy is a measure of overall correctness and is calculated as the ratio of correctly predicted instances to the total number of instances in the dataset.
+$Accuracy = \frac{True Positive + True Negative}{True Positive + True Negative + False Positive + False Negative}$
+
+2. Precision: Precision is the ratio of correctly predicted positive instances to the total predicted positive instances. It measures the accuracy of positive predictions.
+$Precision = \frac{True Positive}{ True Positive + False Positive}$
+
+3. Recall:  Recall is the ratio of correctly predicted positive instances to the total actual positive instances. It measures the model's ability to capture all positive instances.
+$Recall (Sensitivity) = \frac{True Positive}{ True Positive + False Negative}$
+
+4. F1 score: The F1 score is the harmonic mean of precision and recall. It provides a balance between precision and recall, especially useful when the class distribution is imbalanced.
+$F1 = \frac{2*Precision*Recall}{ Precision + Recall}$
+
+where TP and TN define the samples labeled correctly as the positive class or negative class, FP define the samples falsely labeled as positive and FN define the samples falsely labeled as negative.
 
 ```{python}
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
@@ -94,9 +132,14 @@ best_preds = []
 model_names = []
 ```
 
+**Support Vector Machine Classification**
+
+Support Vector Machines (SVM) is a supervised machine learning algorithm used for classification and regression tasks. SVM works by finding a hyperplane in a high-dimensional space that best separates the data points of different classes. The "support vectors" are the data points closest to the decision boundary, and the margin is the distance between the support vectors and the decision boundary. SVM aims to maximize this margin, providing robust generalization to unseen data. SVM is considered a linear classifier but it can handle non-linear relationships through the use of kernel functions, allowing it to map input data into a higher-dimensional space. SVM is particularly effective in high-dimensional spaces and is widely used in various applications, including image classification and text categorization. 
+In the code, we make use of the [scikit-learn](https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html#sklearn.svm.SVC) library for the SVM implementation. The parameter information can be found in the implementation page.
+
 ```{python}
 #| code-fold: false
-from sklearn.model_selection import GridSearchCV
+
 from sklearn.svm import SVC
 
 model_names.append('Support Vector Machine')
@@ -131,10 +174,20 @@ disp.plot()
 plt.show()
 ```
 
+**Decision Tree Classification**
+
+Decision Trees are a non-linear, hierarchical model that partitions the input space into regions and assigns a class label or regression value to each region. The tree structure is built by recursively splitting the data based on the most informative features at each node. A common splitting technique is using the [impurity measure](https://medium.com/@viswatejaster/measure-of-impurity-62bda86d8760) to decide whether the branch must be split or not. Decision Trees are interpretable, easy to visualize, and capable of handling both categorical and numerical features. However, they are prone to overfitting, especially when deep trees are constructed. Techniques like pruning and limiting tree depth help mitigate overfitting and improve generalization.
+In the code, we make use of the [scikit-learn](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier) library for the Decision Tree implementation. The parameter information can be found in the implementation page.
+
+*Grid-Search Hyperparameter tuning*
+
+GridSearchCV, a method that, instead of sampling randomly from a distribution, evaluates all combinations of parameters we define.
+In the code, we make use of the [scikit-learn](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html) library for the GridSearchCV implementation. The parameter information can be found in the implementation page.
 
 ```{python}
 #| code-fold: false
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import GridSearchCV
 
 model_names.append('Decision Tree')
 
@@ -190,6 +243,18 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Non-Diabetic
 disp.plot()
 plt.show()
 ```
+
+**Random Forest Classification**
+
+Random Forest is an ensemble learning method that builds a multitude of decision trees during training and outputs the mode of the classes for classification tasks or the average prediction for regression tasks. Each tree in the forest is constructed using a random subset of the training data and a random subset of features. The randomness and diversity among trees help mitigate overfitting and improve overall model accuracy. Random Forest is known for its robustness, versatility, and effectiveness in handling high-dimensional data.
+In the code, we make use of the [scikit-learn](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html) library for the Random Forest implementation. The parameter information can be found in the implementation page.
+
+
+*RandomSearch Hyperparameter tuning*
+
+RandomizedSearchCV, a method that, sample randomly from a distribution and evaluates the randomly chosen of parameters we define. In contrast to GridSearchCV, not all parameter values are tried out, but rather a fixed number of parameter settings is sampled from the specified distributions. The number of parameter settings that are tried is given by n_iter.
+In the code, we make use of the [scikit-learn](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV) library for the RandomizedSearchCV implementation. The parameter information can be found in the implementation page.
+
 ```{python}
 #| code-fold: false
 from sklearn.ensemble import RandomForestClassifier
@@ -248,6 +313,20 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Non-Diabetic
 disp.plot()
 plt.show()
 ```
+
+**XGBoost**
+
+XGBoost, or Extreme Gradient Boosting, is a machine learning algorithm renowned for its efficiency and performance in predictive modeling tasks. It belongs to the ensemble learning family and is an extension of traditional gradient boosting methods. The core idea behind XGBoost is the sequential addition of weak learners, often decision trees, which are trained to correct errors made by preceding models. XGBoost introduces several key innovations, including regularization techniques to prevent overfitting, parallelized tree construction for faster training, and gradient-based optimization for rapid convergence.
+At its core, XGBoost structures its ensemble as a collection of decision trees, each contributing to the final prediction. So, gradient boosting is in the form of ensemble of weak prediction models. The algorithm assigns weights to the misclassified instances in each iteration, adjusting subsequent trees to focus on the previously misclassified samples. During training, XGBoost uses gradient-based optimization to efficiently navigate the solution space and arrive at an ensemble of trees that collectively delivers a robust and accurate prediction. 
+
+In the code, we make use of the [XGBoost](https://xgboost.readthedocs.io/en/stable/parameter.html) library for the XGBoost implementation. The parameter information can be found in the implementation page.
+
+
+*BayesSearch Hyperparameter tuning*
+
+Bayesian optimization is a more sophisticated technique that uses Bayesian methods to model the underlying function that maps hyperparameters to the model performance. It tries to find the optimal set of hyperparameters by making smart guesses based on the previous results. Bayesian optimization is more efficient than grid or random search because it attempts to balance exploration and exploitation of the search space. It can also deal with the cases of large number of hyperparameters and large search space. However, it can be more difficult to implement than grid search or random search and may require more computational resources.
+
+In the code, we make use of the [skopt](https://scikit-optimize.github.io/stable/auto_examples/sklearn-gridsearchcv-replacement.html) library for the BayesSearchCV implementation. The parameter information can be found in the implementation page.
 
 ```{python}
 #| code-fold: false
@@ -320,6 +399,8 @@ disp.plot()
 plt.show()
 ```
 
+Analyzing the results of all the chosen models, we get the table below:
+
 ```{python}
 # tabulate their classification report
 evaluation_metrics = ['Accuracy', 'Precision', 'Recall', 'F1-score']
@@ -352,3 +433,5 @@ fig.tight_layout()
 plt.show()
 
 ```
+
+This blog only discusses a few classification algorithms and model tuning parameters. By applying the right model, tuning, and regularizing the model, we can aim to improve the accuracy of the model.
